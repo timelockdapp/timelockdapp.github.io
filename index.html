@@ -1,7 +1,1230 @@
-<!DOCTYPE html>
 <html>
+<head>
+<meta charset="UTF-8">	 
+
+<link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+ 
+<link rel="icon" type="image/png" href="image/favicon.png" sizes="42x42">
+ 
+
+<script src="https://cdn.jsdelivr.net/npm/eosjs@16.0.0/lib/eos.min.js"></script>
+<script src="js/bundles/scatterjs-core.min.js"></script>
+<script src="js/bundles/scatterjs-plugin-eosjs.min.js"></script>
+<script src="js/bundles/scatterjs-plugin-lynx.min.js"></script>
+
+ 
+<link rel="stylesheet" href="js/nalert/nalert.css" media="screen">
+<script type="text/javascript" src="js/nalert/nalert.js"></script>
+
+
+<script type="text/javascript" src="js/md5.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="datepicker/datepicker.css" /> 
+<script type="text/javascript" src="datepicker/datepicker.js"></script> 
+<script type="text/javascript" src="datepicker/timepicker.js"></script> 
+ 
+
+
+ 
+
+ 
+<link rel="stylesheet" type="text/css" href="css/timelock.css" />
+</head>
+
 <body>
-<h1>Hello Timelock</h1>
-<p>I'm hosted with GitHub Pages. Edit 1.0</p>
+
+
+<script>
+var counter = 0;
+var mylastgame = "";
+var lastgameid = "";
+var currentgamelist = null;
+
+var infoopen = 0;
+
+
+
+// ---
+// time() - returns milliseconds
+//
+function gettime()
+{
+var date = new Date();
+var timestamp = date.getTime();
+return(timestamp);
+}
+
+
+
+
+
+function format_eos_amount( amount )
+{
+ 
+betamount = amount + "";
+
+var n = betamount.indexOf(".");
+
+if (n == -1)
+   {
+   betamount = betamount + ".0000";
+ 
+   n = betamount.indexOf(".");   
+   }
+   
+   
+
+var l = betamount.length;
+diff = l-n-1;
+ 
+
+amount2 = betamount;
+for (i=diff; i<4; i++) amount2 += '0';
+ 
+
+amount2 = parseFloat(amount2).toFixed(4);
+
+return(amount2);
+
+} // format_eos_amount
+
+
+   
+
+ 
+ 
+//
+// withdraw()
+//
+function withdraw( id )
+{
+  
+var receiver_account = this_smartcontract;
+   
+var theparam = id+"";
+
+  
+   
+  
+
+  eosobject.transaction({
+    actions: [{
+      account:receiver_account,
+ 
+      name: 'withdraw',
+      authorization: [{actor:scatter_account,permission:"active"}],
+
+     data: {"param":  theparam }
+     
+    }]
+  })
+    .then( result => {
+    // If Success
+    
+    console.log("Success!!!");   
+    
+     
+      nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')
+    
+    return;
+  })
+    .catch( error => {
+  
+    console.log(error);
+   
+ 
+  
+    err = JSON.parse(error);
+     nalert('Error' + err.error.details[0].message ,'white'); 
+      
+  
+    console.log("Error Transaction ");  
+
+  
+      
+    return;         
+
+  });
+ 
+ 
+ 
+} // withdraw
+
+
+
+
+
+function get_actions()
+{
+console.log("get action... " +this_smartcontract);
+  
+if (eosobject == null) return;
+ 
+
+eosobject.getTableRows(true,this_smartcontract,this_smartcontract,'global','id','0',2000,2000,2).then
+(
+
+function (value) {
+      currentgamelist = value;
+      console.log(value);
+      funds_open = value.rows[0].funds_open;
+      funds_open = funds_open / 10000;
+      funds_open = format_eos_amount(funds_open);
+   //    console.log(" -2- "+value.rows[0].lastbet);
+        document.getElementById('funds_open').innerHTML = "Total locked: "+ funds_open + " EOS";
+      
+     
+} // then
+
+);     
+
+// ---
+// Get Bet-List
+//
+
+var tsnow = new Date().getTime() / 1000;
+tsnow = Math.floor(tsnow);
+
+var encodedname  = "";
+
+if (scatter_account == null) 
+   {
+   
+   
+console.log(" Conv: "+ scatter_account + " EN: " + encodedname + " " );
+
+   //return;
+   } else
+     {
+     encodedname = Eos.modules.format.encodeName(scatter_account,false) ;
+     console.log(" Conv2: "+ scatter_account + " EN: " + encodedname + " " );
+
+     }
+
+ 
+eosobject.getTableRows( {"json": "true", "code":"timelockdapp", "key_type": "i64", "index_position":"2", "lower_bound": encodedname,  "scope":"timelockdapp", "table":"depstruct", "limit":"50000" } ).then
+(
+
+function (value) {
+ 
+var thelist = "";
+
+var link = "";
+var records = 0;
+
+var balancelocked = 0;
+
+console.log("VAL ............"+scatter_account+".................");
+      var currentgamelist = value;
+      console.log(value);
+       var size = currentgamelist.rows.length;
+     
+   thelist = "<br>";    
+      
+       for (var i=0; i<size; i++)
+          {
+          
+        
+          var the_id            = value.rows[i].id; 
+          var the_holder        = value.rows[i].holder; 
+          var the_depositidhr   = value.rows[i].depositidhr; 
+          var the_depositidhr   = value.rows[i].depositidhr; 
+          var the_amount        = value.rows[i].amount / 10000; 
+          var withdrawn         = value.rows[i].withdrawn; 
+          var timewithdraw      = value.rows[i].timewithdraw; 
+
+
+          if (scatter_account == the_holder && withdrawn == 0)
+          {
+          records++;
+          
+           var utc = timeConverter(timewithdraw);
+           
+    
+            link = "";
+            
+            link += "<div class='itemposition noselect'>";
+            
+           
+            
+            
+               if (withdrawn == 1)
+               link += "<div class='noselect' style='position:absolute;color:#eeeeee; left:22px;top:10px;font-size:12px;'>"; else
+               link += "<div class='noselect' style='position:absolute; left:22px;top:10px;font-size:12px;'>";
+       
+                 
+               link += " "+the_depositidhr;
+               
+               link += "</div>";
+               
+               
+               
+               
+                
+               
+               
+               
+                if (withdrawn == 1)
+                link += "<div class='noselect' style='position:absolute;color:#eeeeee;left:20px;top:27px;font-size:40px;' >"; else
+                link += "<div class='noselect' style='position:absolute;left:20px;top:27px;font-size:40px;'>";
+    
+                link += the_amount+" EOS<br>"; 
+             
+               
+               link += "</div>";
+               
+       
+             var distance = timewithdraw -  tsnow;  
+       
+            
+  // Time calculations for days, hours, minutes and seconds
+  var days = Math.floor(distance / (1 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1 * 60 * 60 * 24)) / (1 * 60 * 60));
+  var minutes = Math.floor((distance % (1 * 60 * 60)) / (1 * 60));
+  var seconds = Math.floor((distance % (1 * 60)) / 1);
+
+ 
+  var buffer = days + "d " + hours + "h "  + minutes + "m " + seconds + "s ";
+
+   if (distance > 0)
+  { 
+ 
+  
+    var x = 300;
+     link += "<div class=' ' style='position:absolute;border:none;text-align:center;left:"+x+"px;top:28px;font-size:20px;'>";
+                link +=  days+"<br>days"; 
+               link += "</div>";
+
+     link += "<div class=' ' style='position:absolute;border:none;text-align:center;left:"+(x+70)+"px;top:28px;font-size:20px;'>";
+                link +=  hours+"<br>hours"; 
+               link += "</div>";
+
+    link += "<div class=' ' style='position:absolute;border:none;text-align:center;left:"+(x+140)+"px;top:28px;font-size:20px;'>";
+                link +=  minutes+"<br>minutes"; 
+               link += "</div>";
+               
+    link += "<div class=' ' style='position:absolute;border:none;text-align:center; left:"+(x+240)+"px;  top:28px;font-size:20px;'>";
+                link +=  seconds+"<br>seconds"; 
+               link += "</div>";               
+               }
+               
+  
+   
+            
+               
+             
+             
+            var link2 = "";
+  if (tsnow >= (timewithdraw+10))
+                {
+             //  link2 += "<img src='image/lock_open.svg' style='width:40px;'>"; 
+                           link2 += "<div onclick='withdraw(\""+the_depositidhr+"\")' class='withdrawbutton green' style=''><img src='image/lock_open.svg' style='position:absolute;width:40px;left:8px;top:1px;'>Withdraw ";
+
+               }
+               else
+               {
+             //  link2 += "<img src='image/lock_closed.svg' style='width:40px;'>";
+                           link2 += "<div onclick='' class='withdrawbutton gray' style=''><img src='image/lock_closed.svg' style='position:absolute;width:40px;left:8px;top:1px;'>Withdraw ";
+
+//                           link2 += "<div onclick='' class='withdrawbutton gray' style=''>Withdraw";
+
+               }
+            link2 += "</div>"; // item
+
+
+            link2 += "</div>"; // item
+            
+            
+            link += link2+"";
+ 
+            if (withdrawn == 0)
+               {
+               balancelocked += the_amount; 
+               }
+  
+           thelist +=  "" +link+"<br>";
+           
+ 
+          
+          }// if scatter_account
+          
+          } // for i...
+   
+      if (records > 0)
+         document.getElementById('itemlist').innerHTML = thelist; else
+         document.getElementById('itemlist').innerHTML = "<span style='font-size:12px;'>N O&nbsp;-&nbsp;R E C O R D S</span>";
+         
+      document.getElementById('balancelocked').innerHTML = "" + format_eos_amount(balancelocked) + " EOS locked &#128274;"; // U+1F513&#128275
+// U+1F513
+
+     } // then
+
+);     
+      
+
+
+ 
+} // function get_actions()
+
+ 
+
+
+
+
+function extround(zahl,n_stelle) {
+zahl = (Math.round(zahl * n_stelle) / n_stelle);
+    return zahl;
+}
+
+
+
+
+
+function get_balance()
+{
+smartcontract = this_smartcontract;
+ 
+ if (scatter_account == null) 
+    {
+    if ( document.getElementById('balance') ) 
+        document.getElementById('balance').innerHTML = "<span class='bold'> - </span>";
+
+ 
+    return;
+    }
+    
+ 
+ if (smartcontract == undefined) return;
+ 
+ 
+if (scatter_account == undefined) return;
+if (eosobject == null) return;
+
+ 
+
+eosobject.getAccount( scatter_account ).then
+(
+
+function (value) 
+{
+ 
+console.log(value);
+      if (value == null) return;
+     
+      var cpu_available = value.cpu_limit.available;
+
+      var cpu_max       = value.cpu_limit.max;      
+
+      var cpu_used      = value.cpu_limit.used;      
+
+      var balance       = value.core_liquid_balance;
+
+      
+      
+      //var percent = cpu_available / cpu_max;
+      var percent = cpu_used / cpu_max;
+      percent = extround(percent*100,100);
+// hier weiter ... bei 0 available...      
+      
+      var classname = "";
+      if (percent < 100) classname="bold_green"; else 
+                         classname="bold_red";
+
+       
+      var balance2 = balance;
+     
+      balance2 = balance.replace("EOS","");
+      balance_eos = balance2*10000; 
+      document.getElementById('balance').innerHTML =  "Liquid: "+ balance2  + " EOS" ;
+
+    
+}
+);
+ 
+
+ 
+
+} // get_balance()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+// wheel_thread
+//
+function app_thread()
+{
+counter++;
+
+ 
+    
+if ( (counter % 4) == 0 )
+{
+   
+    get_balance();
+ 
+   get_actions();
+  
+   
+} 
+
+
+    
+ 
+
+time = setTimeout('app_thread()', 500); 
+} // function app_thread()
+
+
+
+
+
+function timeConverter(UNIX_timestamp){
+  var a = new Date(UNIX_timestamp * 1000);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var year = a.getFullYear();
+  var month = months[a.getMonth()];
+  var date = a.getDate();
+  var hour = a.getHours();
+  var min = a.getMinutes();
+  var sec = a.getSeconds();
+  
+  if (hour < 10) hour = "0" + hour;
+  if (min < 10) min = "0" + min;
+  if (sec < 10) sec = "0" + sec;
+  
+  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+  return time;
+}
+ 
+
+
+
+
+ 
+
+ 
+
+function utcformat(d){
+    d= new Date(d);
+    var tail= 'GMT', D= [d.getUTCFullYear(), d.getUTCMonth()+1, d.getUTCDate()],
+    T= [d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()];
+    if(+T[0]> 12){
+        T[0]-= 12;
+        tail= ' pm '+tail;
+    }
+    else tail= ' am '+tail;
+    var i= 3;
+    while(i){
+        --i;
+        if(D[i]<10) D[i]= '0'+D[i];
+        if(T[i]<10) T[i]= '0'+T[i];
+    }
+    return D.join('/')+' '+T.join(':')+ tail;
+}
+
+ 
+
+
+function create_rand_string()
+{
+
+  var text = "";
+  var possible = "abcdefghijklmnopqrstuvwxyz12345";
+
+  for (var i = 0; i < 12; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
+ 
+} // 
+
+
+
+function lockit()
+{
+
+var lockamount =  document.getElementById('lockamount').value;
+
+ 
+// Beginn date -------------------------------
+
+
+
+var start_dt  =  document.getElementById('start_dt').value;
+var start_tm  =  document.getElementById('start_tm').value;
+
+
+// --- 
+// Split
+var monthlist = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ 
+var fields = start_dt.split('-');
+
+var year  = fields[2];
+var month = fields[1];
+var day   = fields[0];
+
+var index = 0;
+for (var i=0; i<12; i++)
+    {
+    if (monthlist[i] == month) index = i;
+    }
+month = index;
+
+
+var fields = start_tm.split(':');
+
+var hour   = fields[0];
+var minute = fields[1];
+var second = 0;
+
+var thedate = year + "_" + month + "_" + day + " # " + hour + ":" + minute + ":" + second;
+
+
+// ---
+// new Date(Date.UTC(year, month, day, hour, minute, second))
+
+var dateval =  start_dt + " " + start_tm;
+// var ts =  (new Date(dateval)).getTime() / 1000;
+
+ 
+//var dateobject = new Date(Date.UTC(year, month, day, hour, minute, second));
+var dateobject = new Date( year, month, day, hour, minute, second );
+
+var ts = dateobject.getTime() / 1000;
+ 
+// var ts = (new Date("2013-09-05 15:34:00")).getTime() / 1000;
+ //var ts_now = new Date().getTime() / 1000;
+ 
+  
+ var ts_now = new Date().getTime() / 1000;
+ 
+ 
+ var utc = utcformat(ts);
+ 
+// END date -------------------------------
+
+var lockamountmemo = lockamount * 10000;
+
+var fee = lockamount * 0.01;
+var totalamount = (1*lockamount) + (1*fee);
+
+totalamount = format_eos_amount(totalamount);
+lockamount = format_eos_amount(lockamount);
+
+
+var depositid = create_rand_string();
+
+
+
+var memo = "deposit;"+depositid+";"+scatter_account+";"+lockamountmemo+";"+ts;
+
+
+
+ 
+ 
+if (scatter_account == "") return;
+
+ 
+
+
+
+ betamount = totalamount + " EOS";
+//betamount = betamount2 + " "+current_token;
+
+var tokencontract = "eosio.token";
+//if (current_token == "FROG") tokencontract = "frogfrogcoin";
+
+ 
+ 
+ 
+var receiver_account = this_smartcontract;
+  
+  
+
+referral = "";
+ 
+var transferamount = "";
+
+ 
+ 
+ 
+console.log("scatter_account:" + scatter_account);
+
+ 
+
+ // Transfer funds
+  eosobject.transaction({
+    actions: [{
+//      account: 'eosio.token',
+      account: tokencontract,
+      name: 'transfer',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: {"from":scatter_account,"to":receiver_account,"quantity":betamount,"memo":memo}
+    }]
+  })
+    .then( result => {
+    // Buy Success
+    console.log("Success!!!");   
+
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')
+
+ 
+ 
+ 
+   get_balance();
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: transfer1");
+    console.log("scatter_account:" + scatter_account + " " + tokencontract + " receiver_account:" + receiver_account);
+    
+    console.log(error);
+    // Error details
+    mylastgame = "";
+    
+    err = JSON.parse(error);
+    
+
+     nalert('<br><div class=\'checkmark_red\'></div>Error!<br>'+ err.error.details[0].message +'<br>','white')
+      
+    console.log("Error Transaction " + err);  
+ 
+    return;         
+
+  });
+ 
+ 
+ 
+} // lockit
+
+
+function doinfo()
+{
+// infoopen
+if (infoopen == 1)
+   {
+   infoopen = 0;
+   document.getElementById('infownd').style.maxHeight = "0px";
+   document.getElementById('infownd').style.visibility = "hidden";
+   } else
+     {
+     infoopen = 1;
+     document.getElementById('infownd').style.maxHeight = "100%";
+   document.getElementById('infownd').style.visibility = "visible";     
+     } 
+
+}
+
+</script>
+
+
+
+
+<div class='firstheader' style='height:30px;'>
+
+
+<div style='width:100%;'>
+
+<div style=' width:70%;float:left;'>
+&nbsp;
+</div>
+
+<div style=' width:10%;float:left;'>
+    <div   style='float:right;margin-right:50px;margin-top:0px;cursor:pointer'>
+   <a href='https://github.com/timelockdapp' target='_blank'><img src='image/github.svg' style='width:30px;'></a>
+   </div>
+</div>
+
+<div style=' width:20%;float:left;'>
+
+<div id='funds_open' name='funds_open' style='font-size:12px;float-right;margin-right:50px;margin-top:8px;' >&nbsp;</div> 
+  
+
+</div> 
+</div>
+
+
+
+
+
+  
+   
+ 
+   
+</div>
+
+
+<div style='clear:both'></div>
+
+ 
+<div id='main' style='text-align:center;position:relative; ;'>
+
+<div style='width:100%; height:60px;'>
+
+<div style='width:19%;float:left; height:75px;'>
+&nbsp; 
+</div>
+
+<div style=' width:57%;float:left; '>
+ 
+<a href='https://timelockdapp.github.io'><img src='image/eostimelock.svg' style='width:300px;margin-top:20px;'></a><br>
+
+</div>
+
+<div style=' width:20%;float:left; '>
+
+
+ 
+   
+</div>
+
+</div>
+
+<div style='clear:both'></div>
+
+
+
+
+
+<div style='position:relative;width:100px;height:100px;margin-left:auto;margin-right:auto;'>
+
+ <div style='position:absolute;'>
+<a href='https://timelockdapp.github.io'><img src='image/logo.svg' style='width:100px;'></a><br>
+ </div>
+
+
+
+<div style='position:absolute;'>
+<svg
+   width="100"
+   height="100"
+   viewBox="0 0 100 100.00001"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="logo.svg">
+ 
+   <g id="hands">
+ 
+<line id="svghour" x1="50" y1="65" x2="50" y2="55" stroke='#ffffff' stroke-width='7' stroke-linecap="round"  />
+		<line id="svgmin" x1="50" y1="65" x2="50" y2="57" stroke='#ffffff' stroke-width='7' stroke-linecap="round" />
+ 
+	</g>
+</svg>
+</div>
+
+
+
+</div>
+ 
+
+
+<script>
+setInterval(function() {
+
+	function r(el, deg) {
+		el.setAttribute('transform', '  rotate('+ deg +' 50 65) ')
+	}
+	 
+	var d = new Date()
+	//r(svgsec, 6*d.getSeconds())   ;
+	r(svgmin, 6*d.getMinutes()) ;
+	r(svghour, 30*(d.getHours()%12) + d.getMinutes()/2);
+	 
+ 
+}, 1000)
+</script>
+
+
+<div style='border-bottom:3px solid #e9ecef;margin-top:20px;margin-left:20px;margin-right:20px;'></div>
+<div style='margin-left:20px;margin-right:20px;'>
+ 
+ 
+ <br>
+ 
+ 
+Lock up your Funds in a Timelock.<br>
+ 
+   <div onclick='doinfo()' style='cursor:pointer'>
+   <img src='image/info.svg' style='width:40px;' alt='learn more' title='learn more'>
+   </div>
+
+
+<div id='infownd' name='infownd' class='infownd'  style='visibility:hidden;max-height:0px;text-align:left;'>
+ <div class='infowndinner' style='text-align:left;' > 
+  <h3>Timelock Information</h3>
+
+ <strong>Prevent bad trades or losses in gambling!</strong><br>
+ <br> 
+ After the passage of time, reward yourself with full access to your EOS tokens.
+ <br>
+  <br>
+ A timelock is a safe-smartcontract on the blockchain. Also a smartcontract is a piece of software running on the blockchain. Every software needs security and maintenance, especially if you are entrusted with cryptocurrencies. Fortunately, EOSIO allows software maintenance and provides some of the highest security standards.
+ <br>
+  <br>
+Our team makes every effort to meet this safety standard. For our efforts, we charge a fee of 1% on the amount.
+ <br>
+  <br>
+ 
+Thank you for your trust
+<br>
+<br>
+ 
+ 
+ 
+ </div>
+ </div>
+ 
+ 
+</div>
+<div style='border-bottom:3px solid #e9ecef;margin-bottom:20px;margin-left:20px;margin-right:20px;'></div>
+
+
+<div onclick='loginclick()' class='loginbutton' >
+<div class='loginbuttoninner' style='position:relative;height:30px;'>
+
+
+
+<div id='spinnerdiv' style='position:absolute;left:4px;top:2px;visibility:hidden;'>
+<div class="spinner">
+  <div class="bounce1"></div>
+  <div class="bounce2"></div>
+  <div class="bounce3"></div>
+</div>
+</div>
+
+<div id='buttontext' style='position:absolute;left:0px;top:2px;margin-left: 38px;width:130px; '>
+Login
+</div>
+
+</div>
+
+</div>
+
+<div id='scatterhint'>
+<a href='https://get-scatter.com/' target='_blank' style='text-decoration:none;font-size:16px;'>Download Scatter</a> 
+<a href='https://get-scatter.com/' target='_blank'><img src='image/scatter.png' style='width:30px;position:relative;top:10px;'></a>
+</div>
+
+ 
+<div id='accountname' name='accountname' type='text' style='font-weight:bold;margin-top:20px;'></div>
+<div id='balance' name='balance'></div>
+<div id='balancelocked' name='balancelocked'></div>
+ 
+ 
+ 
+<!-- Formular -->
+
+ <div id='infownd' name='infownd' class='infownd'  style='visibility:visible;margin-top:30px; text-align:center;'>
+ <div class='infowndinner' > 
+  <h3>Lock amount:</h3>
+  
+ 
+
+<input id='lockamount' name='lockamount' class='lockamount' type='text' value='1.0000'  style=''> EOS<br>
+
+
+
+
+  <p>Unlock-Date / Time:<br /> 
+    <input id="start_dt" onclick='showDatePicker("start_dt")'  class='datepicker datepicker_add' size='11' title='D-MM-YYYY' /> 
+    <input id="start_tm" class='timepicker timepicker_add' size='5'  title='HH:MM' value='23:59' /> 
+  </p> 
+
+<script>
+// 30-May-2019
+ 
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = months[today.getMonth()];
+var yyyy = today.getFullYear();
+
+ 
+  
+ 
+today = dd + '-' + mm + '-' + yyyy;
+
+document.getElementById('start_dt').placeholder = today;
+</script>
+
+ <div onclick='lockit()' class='lockbutton' ><img src='image/lock_closed_white.svg' style='position:absolute;width:40px;left:8px;top:1px;'>Lock</div> 
+ <br> 
+
+<br>
+
+
+ </div>
+ </div>
+ 
+ 
+ 
+ 
+ 
+ <div id='itemlist' name='itemlist'><span style='font-size:12px;'>N O&nbsp;-&nbsp;R E C O R D S</span></div>
+ 
+
+</div> <!-- main -->
+
+
+ 
+ 
+ 
+
+
+<script>
+
+
+
+
+ 
+ ScatterJS.plugins( new ScatterEOS() );
+ 
+ 
+   const network = ScatterJS.Network.fromJson({
+	   blockchain:'eos',
+	   chainId:'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
+	   host:'nodes.get-scatter.com',
+	   port:443,
+	   protocol:'https'
+   });
+ 
+  
+  /*  
+   const network = ScatterJS.Network.fromJson({
+	   blockchain:'eos',
+	   chainId:'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
+	   host:'jungle2.cryptolions.io',
+	   port:443,
+	   protocol:'https'
+   });
+   */
+   
+   
+   
+var eosobject = null;
+var scatter_account = "";
+var scatterobj;
+var this_smartcontract = "timelockdapp";
+   
+
+ 
+ 
+
+function loginclick()
+{
+ if (scatter_account == "" || scatter_account == null)
+           {
+ 
+            document.getElementById('spinnerdiv').style.visibility = "visible";
+            document.getElementById('buttontext').style.visibility = "hidden";
+           document.getElementById('scatterhint').style.visibility = "hidden";
+            
+           dologin();      
+           }
+           else
+           {
+               document.getElementById('spinnerdiv').style.visibility = "visible";
+              document.getElementById('buttontext').style.visibility = "hidden";
+              document.getElementById('scatterhint').style.visibility = "hidden";
+
+
+
+           dologout();
+           }
+  
+
+
+
+     
+}
+
+
+ 
+window.dologin  = async () => {
+ 
+     try
+        {
+        console.log("dologin...");
+        await ScatterJS.login();        
+        var eos = null;        
+        if ( scatterobj )
+           {
+           eos = scatterobj.eos(network, Eos);
+            eosobj = eos;                       
+           } 
+           
+          } catch (err)
+             {
+        
+                      document.getElementById('spinnerdiv').style.visibility = "hidden";
+            document.getElementById('buttontext').style.visibility = "visible";
+            
+             document.getElementById('scatterhint').style.visibility = "visible";
+             return Promise.reject(err);
+             }           
+  
+    } /* async */
+    
+ 
+
+ 
+
+
+window.dologout = 
+     async () => {     
+     
+     
+        try
+        {
+        await scatter.forgetIdentity();
+        scatter_account = "";
+        console.log("Scatter logout2");
+        document.getElementById('accountname').innerHTML = "";
+        document.getElementById('balance').innerHTML = "";
+        
+            	    document.getElementById('buttontext').innerHTML = "Login";
+            	     document.getElementById('scatterhint').style.visibility = "visible";
+         } catch (err)
+             {
+          
+             return Promise.reject(err);
+             }
+         
+    }
+
+ 
+
+   
+   
+    
+    var  scatter = null;
+    var  eos = null;
+    
+ 
+    
+    const setStatus = () => {
+    
+ 
+    	 
+    	if(!scatter) 
+    	   {
+    	   
+ 
+    	   return 
+    	   }
+
+        // get accountname
+        const account = ScatterJS.account('eos');
+    	
+    	if (account != undefined)
+    	    {
+    	    scatter_account = account.name;
+    	    
+    	    document.getElementById('buttontext').innerHTML = "Logout";
+
+
+
+    	   
+    	        	      console.log("ACCOUNT!!! " + scatter_account);
+    	     
+    	    } else
+    	      {
+    	      scatter_account = "";
+  
+    	      console.log("NO-ACCOUNT");
+    	      return
+    	      }
+    	    
+    	 
+    	console.log( account.name );
+    	
+         get_balance();
+        document.getElementById('accountname').innerHTML = "Welcome " + scatter_account  ;
+      
+          document.getElementById('spinnerdiv').style.visibility = "hidden";
+          document.getElementById('buttontext').style.visibility = "visible";
+ 
+                    	
+              	
+    	
+    }; // setStatus()
+    
+    
+    
+    
+    
+    setStatus();
+    setInterval(() => {
+	    setStatus();
+	   //  console.log("ok");
+    }, 1000);
+    
+   
+   
+   
+   
+    ScatterJS.connect('timelock', {network}).then(connected => {
+        if(!connected) return false;
+        scatter = ScatterJS.scatter;
+        scatterobj = scatter;
+        
+
+        eosobject = scatter.eos(network, Eos);
+        
+            console.log("B1");
+        console.log(eosobject);
+ 
+ 
+        scatter.addEventHandler((event, payload) => {
+            console.log('app event', event, payload);
+        });
+    });
+    
+       
+    console.log(" cat 1");   
+//------------------
+
+
+dologin();
+
+
+app_thread();
+</script>
+
+ 
+<br>
+<br>
+<br>
+ 
+<br>
+
+<div id='footer' name='footer' class='timefooter'>
+<div class='timefooterinner'>
+<a href='https://bloks.io/account/timelockdapp' target='_blank' style='color:#eeeeee;'>bloks.io/account/timelockdapp</a><br>
+<br>
+View smartcontract code on github<br>
+<br>
+
+<a href='https://github.com/timelockdapp' target='_blank'><img src='image/github_white.svg' style='width:30px;'></a>
+</div>
+</div>
+
+<div id='nalertbox' name='nalertbox' class='nalertbox' style='width:40%;position:fixed;left:30%;top:-300px;right:50px;'>&nbsp:</div>
+
 </body>
 </html>
