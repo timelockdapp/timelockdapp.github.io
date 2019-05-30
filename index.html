@@ -38,7 +38,8 @@ var lastgameid = "";
 var currentgamelist = null;
 
 var infoopen = 0;
-
+var claimtoolopen = 0;
+var lastbalance = 0;
 
 
 // ---
@@ -430,7 +431,9 @@ console.log(value);
       var cpu_used      = value.cpu_limit.used;      
 
       var balance       = value.core_liquid_balance;
-
+      
+      lastbalance       = balance;
+      lastbalance       = lastbalance.replace("EOS","");
       
       
       //var percent = cpu_available / cpu_max;
@@ -449,6 +452,10 @@ console.log(value);
       balance_eos = balance2*10000; 
       document.getElementById('balance').innerHTML =  "Liquid: "+ balance2  + " EOS" ;
 
+ if ( document.getElementById('balance2') )
+               {
+               document.getElementById('balance2').innerHTML  =""+ balance2  + " EOS" ;
+               }
     
 }
 );
@@ -479,6 +486,11 @@ function app_thread()
 counter++;
 
  
+ if ( (counter % 2) == 0)
+    {
+    calcdiff();
+    }
+    
     
 if ( (counter % 4) == 0 )
 {
@@ -701,6 +713,28 @@ console.log("scatter_account:" + scatter_account);
 } // lockit
 
 
+
+function doclaimtool()
+{
+// infoopen
+if (claimtoolopen == 1)
+   {
+   claimtoolopen = 0;
+   document.getElementById('claimwnd').style.maxHeight = "0px";
+   document.getElementById('claimwnd').style.visibility = "hidden";
+   } else
+     {
+     claimtoolopen = 1;
+     document.getElementById('claimwnd').style.maxHeight = "";
+   document.getElementById('claimwnd').style.width = "90%";        
+   document.getElementById('claimwnd').style.visibility = "visible";     
+     } 
+
+}
+
+
+
+
 function doinfo()
 {
 // infoopen
@@ -729,7 +763,7 @@ if (infoopen == 1)
 <div style='width:100%;'>
 
 <div style=' width:70%;float:left;'>
-&nbsp;
+&nbsp;<span onclick='doclaimtool()' style='font-size:12px;cursor:pointer;text-decoration:underline;'>Claimtool</span>
 </div>
 
 <div style=' width:10%;float:left;'>
@@ -836,6 +870,436 @@ setInterval(function() {
 </script>
 
 
+
+<div id='claimwnd' name='claimwnd' class='claimwnd'  style='visibility:hidden;max-height:0px;text-align:left;float:left;'>
+ <div class='infowndinner' style='text-align:left;' > 
+  <h3>Claim tool</h3>   
+ 
+  Your balance: <div id='balance2' name='balance2'></div>
+  
+  
+ <hr> 
+ <div style='float:left;'>&nbsp;Balance old:&nbsp;</div>
+ <input id='balanceold' name='balanceold' class='lockamount' type='text' value='...'  style='float:left;'>  
+
+  <div style='float:left;'>&nbsp;Difference:&nbsp;</div>
+ <input id='claimdiff' name='claimdiff' class='lockamount' type='text' value='...'  style='float:left;'> 
+ <div onclick='resetdiff()' class='resetbutton' style='float:left;'>RESET</div> 
+
+<br>
+<div style='clear:both;'></div>
+
+
+<!--
+print("<div onclick='claim_king()' class='lockbutton' >Claim King</div>");
+print("<div onclick='claim_pke()' class='lockbutton' >Claim PKE</div>");
+print("<div onclick='claim_bingo()' class='lockbutton' >Claim Bingo</div>");
+print("<div onclick='claim_royale()' class='lockbutton' >Claim Royale</div>");
+print("<div onclick='claim_max()' class='lockbutton' >Claim Max</div>");
+
+print("<div onclick='claim_bg()' class='lockbutton' >Claim BG</div>");
+//print("<div onclick='claim_betx()' class='lockbutton' >Claim BETX</div>");
+print("<div onclick='claim_deos()' class='lockbutton' >Claim DEOS</div>");
+frog
+ -->
+ 
+  
+  <div onclick='claim_king()' class='claimbutton' >Claim KING</div> 
+  <div onclick='claim_pke()' class='claimbutton' >Claim PKE</div>
+  <div onclick='claim_bingo()' class='claimbutton' >Claim BINGO</div>
+  <div onclick='claim_roy()' class='claimbutton' >Claim ROY</div>
+  <div onclick='claim_max()' class='claimbutton' >Claim MAX</div>
+  
+    <div onclick='claim_bg()' class='claimbutton' >Claim BG</div>
+      
+        <div onclick='claim_deos()' class='claimbutton' >Claim DEOS</div>
+          <div onclick='claim_frog()' class='claimbutton' >Claim FROG</div>
+          
+  <div onclick='claim_dice()' class='claimbutton' >Claim DICE</div> 
+  <div onclick='claim_hash()' class='claimbutton' >Claim HASH</div> 
+
+ <br>
+  
+ <br>
+ 
+ </div>
+</div>  
+<div style='clear:both;'></div>
+
+
+<script>
+
+
+
+function claim_king()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'pokerkstake1',
+      name: 'dividend',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'user' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_king
+
+
+
+ 
+     
+
+
+function claim_pke()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'pokereosteam',
+      name: 'claimbalance',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'username' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_king     
+
+
+
+ 
+function claim_bingo()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'bingoprofits',
+      name: 'claim',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'user' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_bingo  
+
+
+
+ 
+function claim_roy()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'eosroyalepay',
+      name: 'claim',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'to' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_roy  
+
+
+
+
+ 
+function claim_max()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'eosmaxioteam',
+      name: 'claim',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'user' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_max  
+
+
+
+ 
+ 
+     
+function claim_bg()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'bgdividend11',
+      name: 'claim',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'player' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_bg 
+
+
+ 
+ 
+
+
+ 
+
+function claim_deos()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'thedeosgames',
+      name: 'nclaim',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'player' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_deos
+
+ 
+     
+function claim_frog()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'frogdividend',
+      name: 'claim',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'param' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_frog    
+
+function claim_dice()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'betdicegroup',
+      name: 'claimbalance',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'username' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_dice
+ 
+ 
+function claim_hash()
+{
+ 
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'eoshashstake',
+      name: 'claim',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'user' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_dice
+ 
+ 
+
+// ---------------
+function resetdiff()
+{
+//alert("t");
+var balance = lastbalance;
+
+document.getElementById('balanceold').value = balance;
+//document.getElementById('claimdiff').value = balance;
+/*
+print("<input id='balanceold' name='balanceold' type='text' value='...'  style='width:400px;'> <br>");
+print("<br>");
+print("diff:<br>"); 
+print("<input id='claimdiff' name='claimdiff' type='text' value='...'  style='width:400px;'> <br>");
+print("<br>");
+*/
+} // resetdiff
+
+
+function calcdiff()
+{
+ var balance =  lastbalance;
+ var balanceold =  document.getElementById('balanceold').value;
+
+if (balance && balanceold > 0 && balance >= balanceold)
+   {
+var diff = balance - balanceold;
+diff = format_eos_amount(diff);
+ document.getElementById('claimdiff').value = diff;
+    }
+}
+</script>
+
+
+<!-- alfalf -->
+
+
 <div style='border-bottom:3px solid #e9ecef;margin-top:20px;margin-left:20px;margin-right:20px;'></div>
 <div style='margin-left:20px;margin-right:20px;'>
  
@@ -848,6 +1312,7 @@ Lock up your Funds in a Timelock.<br>
    <div onclick='doinfo()' style='cursor:pointer'>
    <img src='image/info.svg' style='width:40px;' alt='learn more' title='learn more'>
    </div>
+   
 
 
 <div id='infownd' name='infownd' class='infownd'  style='visibility:hidden;max-height:0px;text-align:left;'>
