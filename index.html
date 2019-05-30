@@ -24,10 +24,6 @@
 <script type="text/javascript" src="datepicker/datepicker.js"></script> 
 <script type="text/javascript" src="datepicker/timepicker.js"></script> 
  
-
-
- 
-
  
 <link rel="stylesheet" type="text/css" href="css/timelock.css" />
 </head>
@@ -795,9 +791,9 @@ if (infoopen == 1)
 
 <div style='position:relative;width:100px;height:100px;margin-left:auto;margin-right:auto;'>
 
- <div style='position:absolute;'>
+<div style='position:absolute;'>
 <a href='https://timelockdapp.github.io'><img src='image/logo.svg' style='width:100px;'></a><br>
- </div>
+</div>
 
 
 
@@ -809,14 +805,11 @@ if (infoopen == 1)
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="logo.svg">
- 
+   sodipodi:docname="logo.svg"> 
    <g id="hands">
- 
         <line id="svgmin"  x1="50" y1="65" x2="50" y2="52" stroke='#ffffff' stroke-width='7' stroke-linecap="round"  />
-		<line id="svghour" x1="50" y1="65" x2="50" y2="58" stroke='#ffffff' stroke-width='7' stroke-linecap="round" />
- svghour
-	</g>
+		<line id="svghour" x1="50" y1="65" x2="50" y2="58" stroke='#ffffff' stroke-width='7' stroke-linecap="round" />  
+   </g>
 </svg>
 </div>
 
@@ -847,7 +840,7 @@ setInterval(function() {
 <div style='margin-left:20px;margin-right:20px;'>
  
  
- <br>
+<br>
  
  
 Lock up your Funds in a Timelock.<br>
@@ -939,7 +932,7 @@ Login
   </p> 
 
 <script>
-// 30-May-2019
+ 
  
 var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -988,7 +981,6 @@ document.getElementById('start_dt').placeholder = today;
  
  ScatterJS.plugins( new ScatterEOS() );
  
- 
    const network = ScatterJS.Network.fromJson({
 	   blockchain:'eos',
 	   chainId:'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
@@ -1024,8 +1016,8 @@ function loginclick()
  if (scatter_account == "" || scatter_account == null)
            {
  
-            document.getElementById('spinnerdiv').style.visibility = "visible";
-            document.getElementById('buttontext').style.visibility = "hidden";
+           document.getElementById('spinnerdiv').style.visibility = "visible";
+           document.getElementById('buttontext').style.visibility = "hidden";
            document.getElementById('scatterhint').style.visibility = "hidden";
             
            dologin();      
@@ -1035,9 +1027,7 @@ function loginclick()
                document.getElementById('spinnerdiv').style.visibility = "visible";
               document.getElementById('buttontext').style.visibility = "hidden";
               document.getElementById('scatterhint').style.visibility = "hidden";
-
-
-
+ 
            dologout();
            }
   
@@ -1091,14 +1081,13 @@ window.dologout =
         document.getElementById('accountname').innerHTML = "";
         document.getElementById('balance').innerHTML = "";
         
-            	    document.getElementById('buttontext').innerHTML = "Login";
-            	     document.getElementById('scatterhint').style.visibility = "visible";
-         } catch (err)
+        document.getElementById('buttontext').innerHTML = "Login";
+        document.getElementById('scatterhint').style.visibility = "visible";
+        } catch (err)
              {
           
              return Promise.reject(err);
-             }
-         
+             }         
     }
 
  
@@ -1108,7 +1097,6 @@ window.dologout =
     
     var  scatter = null;
     var  eos = null;
-    
  
     
     const setStatus = () => {
@@ -1117,8 +1105,6 @@ window.dologout =
     	 
     	if(!scatter) 
     	   {
-    	   
- 
     	   return 
     	   }
 
@@ -1134,7 +1120,7 @@ window.dologout =
 
 
     	   
-    	        	      console.log("ACCOUNT!!! " + scatter_account);
+    	    console.log("ACCOUNT!!! " + scatter_account);
     	     
     	    } else
     	      {
@@ -1165,7 +1151,6 @@ window.dologout =
     setStatus();
     setInterval(() => {
 	    setStatus();
-	   //  console.log("ok");
     }, 1000);
     
    
@@ -1191,12 +1176,8 @@ window.dologout =
     
        
       
-//------------------
-
-
+ 
 dologin();
-
-
 app_thread();
 </script>
 
