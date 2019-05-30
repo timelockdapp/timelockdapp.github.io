@@ -154,6 +154,21 @@ var theparam = id+"";
 
 
 
+function timeConverter(UNIX_timestamp){
+  var a = new Date(UNIX_timestamp * 1000);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var year = a.getFullYear();
+  var month = months[a.getMonth()];
+  var date = a.getDate();
+  var hour = a.getHours();
+  var min = a.getMinutes();
+  var sec = a.getSeconds();
+  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+  return time;
+}
+
+
+
 
 function get_actions()
 {
@@ -178,6 +193,7 @@ function (value) {
 } // then
 
 );     
+
 
 // ---
 // Get Bet-List
@@ -254,7 +270,7 @@ console.log("VAL ............"+scatter_account+".................");
                link += "<div class='noselect' style='position:absolute; left:22px;top:10px;font-size:12px;'>";
        
                  
-               link += " "+the_depositidhr;
+               link += " "+the_depositidhr +" &bull; Unlock: " + timeConverter(timewithdraw);
                
                link += "</div>";
                
@@ -309,25 +325,24 @@ console.log("VAL ............"+scatter_account+".................");
                link += "</div>";               
                }
                
+ 
   
-   
-            
+
+  
                
              
              
             var link2 = "";
   if (tsnow >= (timewithdraw+10))
-                {
-             //  link2 += "<img src='image/lock_open.svg' style='width:40px;'>"; 
-                           link2 += "<div onclick='withdraw(\""+the_depositidhr+"\")' class='withdrawbutton green' style=''><img src='image/lock_open.svg' style='position:absolute;width:40px;left:8px;top:1px;'>Withdraw ";
+                {    
+                link2 += "<div onclick='withdraw(\""+the_depositidhr+"\")' class='withdrawbutton green' style=''><img src='image/lock_open.svg' style='position:absolute;width:40px;left:8px;top:1px;'>Withdraw ";
 
                }
                else
                {
-             //  link2 += "<img src='image/lock_closed.svg' style='width:40px;'>";
-                           link2 += "<div onclick='' class='withdrawbutton gray' style=''><img src='image/lock_closed.svg' style='position:absolute;width:40px;left:8px;top:1px;'>Withdraw ";
+                link2 += "<div onclick='' class='withdrawbutton gray' style=''><img src='image/lock_closed.svg' style='position:absolute;width:40px;left:8px;top:1px;'>Withdraw ";
 
-//                           link2 += "<div onclick='' class='withdrawbutton gray' style=''>Withdraw";
+
 
                }
             link2 += "</div>"; // item
@@ -356,7 +371,7 @@ console.log("VAL ............"+scatter_account+".................");
          document.getElementById('itemlist').innerHTML = "<span style='font-size:12px;'>N O&nbsp;-&nbsp;R E C O R D S</span>";
          
       document.getElementById('balancelocked').innerHTML = "" + format_eos_amount(balancelocked) + " EOS locked &#128274;"; // U+1F513&#128275
-// U+1F513
+ 
 
      } // then
 
@@ -489,26 +504,7 @@ time = setTimeout('app_thread()', 500);
 
 
 
-
-function timeConverter(UNIX_timestamp){
-  var a = new Date(UNIX_timestamp * 1000);
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var year = a.getFullYear();
-  var month = months[a.getMonth()];
-  var date = a.getDate();
-  var hour = a.getHours();
-  var min = a.getMinutes();
-  var sec = a.getSeconds();
-  
-  if (hour < 10) hour = "0" + hour;
-  if (min < 10) min = "0" + min;
-  if (sec < 10) sec = "0" + sec;
-  
-  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-  return time;
-}
  
-
 
 
 
@@ -1196,7 +1192,7 @@ window.dologout =
     });
     
        
-    console.log(" cat 1");   
+      
 //------------------
 
 
