@@ -1,0 +1,74 @@
+
+.nalertbox
+{
+border: none;
+color:#444444;
+background-color:#52ff5b;
+-webkit-border-radius: 5px;
+-moz-border-radius:5px;
+border-radius: 5px;
+text-align:center;
+
+-webkit-transition: all 0.2s ease-in-out;  
+-moz-transition: all 0.2s ease-in-out;  
+transition: all 0.2s ease-in-out;
+
+min-height:60px;
+font-size:20px;
+z-index:1000;
+
+ 
+-moz-box-shadow: 0 0 15px #999999;
+-webkit-box-shadow: 0 0 15px #999999;
+box-shadow: 0px 0px 15px #999999;
+ 
+ 
+     -ms-user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+
+.signred
+{
+border:1px solid;
+width:30px;
+height:30px;
+
+-webkit-border-radius: 25px;
+-moz-border-radius:25px;
+border-radius: 25px;
+
+font-size:20px;
+}
+
+.checkmark_red
+{
+border:none;
+background-image:url(../../image/checkmark_red.svg);
+width:50px;
+height:50px;
+background-size: 50px 50px;
+
+margin-left:auto;
+margin-right:auto;
+}
+
+
+.checkmark_green
+{
+border:none;
+background-image:url(../../image/checkmark_green.svg);
+width:50px;
+height:50px;
+background-size: 50px 50px;
+
+margin-left:auto;
+margin-right:auto;
+}
+
+ 
+
+ 
+
