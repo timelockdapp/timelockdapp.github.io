@@ -919,6 +919,7 @@ frog
   <div onclick='claim_dice()' class='claimbutton' >Claim DICE</div> 
   <div onclick='claim_hash()' class='claimbutton' >Claim HASH</div> 
   <div onclick='claim_ekd()' class='claimbutton' >Claim EKD</div> 
+  <div onclick='claim_er()' class='claimbutton' >Claim ER</div> 
 
  <br>
   
@@ -1298,7 +1299,37 @@ actions: [{
 } // claim_ekd
  
  
+
+function claim_er()
+{
  
+if (eosobject == null) alert("null");
+var theparam = "";
+eosobject.transaction({
+actions: [{
+      account: 'eosreelstake',
+      name: 'claim',
+      authorization: [{actor:scatter_account,permission:"active"}],
+     data: { 'owner' :  scatter_account }
+    }]
+  })
+    .then( result => {        
+     nalert('<br><div class=\'checkmark_green\'></div>Success!<br><br>','white')       
+    return;
+  })
+    .catch( error => {
+    console.log("jsonerr: "+error);
+    // Error details
+ 
+    err = JSON.parse(error);
+    console.log("Error Transaction " + err);  
+
+    nalert('Error' + err.error.details[0].message ,'white'); 
+    return;         
+
+  });
+} // claim_er
+  
 
 // ---------------
 function resetdiff()
